@@ -17,3 +17,8 @@
       -If a member is unavailable, they must update others to ensure that plans can be changed before any conflict arises. <br>
    Review/notes for anyone who wasn't available <br>
       -Present team members will track meeting minutes that can be used to update any team member who is currently not present. </pr>
+<h2> Meetings </h2>
+<h2> Communication</h2>
+<h2> Decisions</h2>
+<h2> Development</h2>
+<h2> Work Flow</h2>
