@@ -56,3 +56,4 @@
 <pr>Agreement will be reviewed before each major project to ensure the relevance of the agreement.</pr>
 Alexander Kindall
 Cason Nicholson
+Corbin Hovasse
