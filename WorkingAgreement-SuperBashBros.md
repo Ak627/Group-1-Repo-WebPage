@@ -55,3 +55,4 @@
 <h2>Agreemment Review</h2>
 <pr>Agreement will be reviewed before each major project to ensure the relevance of the agreement.</pr>
 Alexander Kindall
+Cason Nicholson
