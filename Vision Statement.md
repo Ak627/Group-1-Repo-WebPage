@@ -2,12 +2,9 @@ Vision Statement
 
 ***Product name: Blackjack Teacher***
 
-&nbsp;	***For***: Users who want to learn the basics of a simple 21/blackjack game without the worry of having any consequences.
+For users who want to learn the basics of Blackjack without risk, our program provides a private deck to shuffle and draw from while educating the user on how to calculate hand values in a stress free environment. The key benefit is a low consequence, independent learning experience that functions without the pressure of dealers or other players. Unlike traditional online or in person games that emphasize a fast paced multi player atmosphere, our project focuses on a dedicated, one on one educational experience.
 
-&nbsp;	***Who***: Have a deck of cards that a user can shuffle and pull from, from there the program will inform and educate user on how to calculate the value of their hand for a simple blackjack game, without the stress of any real game.
 
-&nbsp;	***Key benefit:*** Low stress and low consequence. No stakes, you learn independently without any outside intervention(Dealers, other players, ect.)
 
-&nbsp;	***Unlike***: Online/in-person blackjack games that show emphasis on multiple players acting at once rather than a single experience like our project.
 
 
