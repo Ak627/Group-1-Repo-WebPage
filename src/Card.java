@@ -13,7 +13,7 @@ public class Card {
 		return Integer.parseInt(rank);
 	}
 	
-    public String DisplayCard() {
+    public String displayCard() {
 		return rank + " of " + suit;
     }
 }
