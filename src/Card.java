@@ -3,6 +3,7 @@
 * @author Super Bash Bros
 * @version 1.0
 */
+
 public class Card {
     String rank;
     String suit;
