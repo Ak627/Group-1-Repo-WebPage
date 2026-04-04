@@ -1,12 +1,13 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+
 /**
  * Main entry point for the BlackJack card game.
  * @author Super Bash Bros
  * @version 1.0
  */
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
 
 public class BlackJack {
     public static void main(String[] args) {
