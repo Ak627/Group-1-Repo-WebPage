@@ -1,3 +1,8 @@
+/**
+ * Represents a player's hand of cards.
+ * @author Super Bash Bros
+ * @version 1.0
+ */
 import java.util.ArrayList;
 import java.util.List;
 
