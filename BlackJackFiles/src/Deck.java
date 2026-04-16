@@ -29,7 +29,7 @@ public class Deck {
     }
     //draws card from top of deck and returns it
     // todo: add functionality to add to discard, to indicate when decks needs to be reshuffled
-    public String draw() {
+    public Card draw() {
         Card first = deck.remove(0);
         System.out.println(first.displayCard());
         return first;
