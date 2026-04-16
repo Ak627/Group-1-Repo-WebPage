@@ -35,7 +35,7 @@ public class Main{
         drawB.setBounds(SwingConstants.RIGHT+220,350, 220, 50);
         frame.add(drawB);
         drawB.addActionListener(e -> {
-            labeltest.setText(deck.draw());
+            labeltest.setText(deck.draw().displayCard());
         });
 
         JButton resetB = new JButton("Reset");
