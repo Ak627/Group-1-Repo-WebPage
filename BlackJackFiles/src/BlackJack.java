@@ -1,6 +1,3 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -11,7 +8,7 @@ import java.util.Scanner;
 
 public class BlackJack {
     public static void main(String[] args) {
-		Scanner scanner = new Scanner(System.in);
+		Scanner scanner = new Scanner(System.in, java.nio.charset.StandardCharsets.UTF_8);
 		Deck deck = new Deck();
 		
 		while(true) {
