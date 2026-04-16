@@ -27,14 +27,12 @@ public class Deck {
         Collections.shuffle(deck);
         System.out.println("Cards Shuffled");
     }
-    //draws card from top of deck and adds it to the end of the deck
+    //draws card from top of deck and returns it
     // todo: add functionality to add to discard, to indicate when decks needs to be reshuffled
     public String draw() {
-
         Card first = deck.remove(0);
         System.out.println(first.displayCard());
-        String cardString = first.displayCard();
-		return cardString;
+        return first;
     }
 	
     public void showAll() {
