@@ -32,7 +32,7 @@ public class Deck {
     public Card draw() {
         Card first = deck.remove(0);
         System.out.println(first.displayCard());
-        return first;
+        	return first;
     }
 	
     public void showAll() {
