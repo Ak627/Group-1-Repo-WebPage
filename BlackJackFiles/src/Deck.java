@@ -29,10 +29,12 @@ public class Deck {
     }
     //draws card from top of deck and adds it to the end of the deck
     // todo: add functionality to add to discard, to indicate when decks needs to be reshuffled
-    public Card draw() {
+    public String draw() {
+
         Card first = deck.remove(0);
         System.out.println(first.displayCard());
-		return first;
+        String cardString = first.displayCard();
+		return cardString;
     }
 	
     public void showAll() {
@@ -41,6 +43,7 @@ public class Deck {
     	}
     }
 	public void reset() {
+        System.out.println("Deck reset");
         deck.clear();
 
         String[] suits = {"Hearts", "Clubs", "Diamonds", "Spades"};
