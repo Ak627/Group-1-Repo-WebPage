@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.1" encoding="UTF-8"?>
 <project name="MyAntApp" default="package" basedir=".">
 
-  <property name="app.name"    value="SampleApp"/>
-  <property name="app.version" value="1.0.0"/>
+  <property name="app.name"    value="BlackJackTeacher"/>
+  <property name="app.version" value="1.1.0"/>
   <property name="main.class"  value="Main"/>
 
   <property name="src.dir"     value="src"/>
@@ -10,8 +10,11 @@
   <property name="jar.dir"     value="build/jar"/>
   <property name="dist.dir"    value="dist"/>
   <property name="docs.dir"    value="build/docs"/>
-  <property name="lib.dir" value="BlackJackFiles/lib"/>
-  <property name="test.dir" value="src"/> 
+  <property name="lib.dir"     value="lib"/>
+  <property name="test.dir"    value="src"/> 
+  <!-- new targets !-->
+  <property name="test.build.dir"   value="build/test-classes"/>
+  <property name="test.report.dir"  value="build/test-reports"/>
 
 
   <!-- JUnit 5 JARs installed via apt (junit5 package) -->
@@ -139,7 +142,21 @@
 
   <target name="javadoc-all" depends="javadoc, javadoc-internal" description="Generate both standard and internal documentation sets"/>
 
-  <target name="test" depends="compile">
+<target name="test" depends="compile-tests" description="Run JUnit 5 tests">
+  <mkdir dir="${test.report.dir}"/>
+  <java classname="org.junit.platform.console.ConsoleLauncher"
+        fork="true"
+        failonerror="true">
+    <classpath>
+      <pathelement location="${build.dir}"/>
+      <pathelement location="${test.build.dir}"/>
+      <path refid="junit.classpath"/>
+    </classpath>
+    <arg value="--select-class=BlackJackTest"/>
+    <arg value="--reports-dir=${test.report.dir}"/>
+  </java>
+</target>
+ <!--<target name="test" depends="compile">
   <junit printsummary="yes" haltonfailure="yes">
     <classpath>
       <pathelement path="${build.dir}"/>
@@ -149,6 +166,20 @@
       <fileset dir="${test.dir}" includes="**/*Test.java"/>
     </batchtest>
   </junit>
+</target> !-->
+
+<target name="compile-tests" depends="compile" description="Compile test source files">
+  <mkdir dir="${test.build.dir}"/>
+  <javac srcdir="${src.dir}"
+         destdir="${test.build.dir}"
+         includeantruntime="false"
+         debug="true"
+         includes="BlackJackTest.java">
+    <classpath>
+      <pathelement location="${build.dir}"/>
+      <path refid="junit.classpath"/>
+    </classpath>
+  </javac>
 </target>
 
   <target name="package" description="Build the native installer for the current OS (DMG, DEB, or MSI)">
