@@ -18,6 +18,10 @@ public class Card {
 		if (rank.equals("J") || rank.equals("Q") || rank.equals("K")) return 10;
 		return Integer.parseInt(rank);
 	}
+
+	public String getRank() {
+		return rank;
+    }
 	
     public String displayCard() {
 		return rank + " of " + suit;

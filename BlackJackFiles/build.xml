@@ -142,6 +142,20 @@
 
   <target name="javadoc-all" depends="javadoc, javadoc-internal" description="Generate both standard and internal documentation sets"/>
 
+<target name="compile-tests" depends="compile" description="Compile test source files">
+  <mkdir dir="${test.build.dir}"/>
+  <javac srcdir="${src.dir}"
+         destdir="${test.build.dir}"
+         includeantruntime="false"
+         debug="true"
+         includes="*Test.java">
+    <classpath>
+      <pathelement location="${build.dir}"/>
+      <path refid="junit.classpath"/>
+    </classpath>
+  </javac>
+</target>
+
 <target name="test" depends="compile-tests" description="Run JUnit 5 tests">
   <mkdir dir="${test.report.dir}"/>
   <java classname="org.junit.platform.console.ConsoleLauncher"
@@ -152,10 +166,11 @@
       <pathelement location="${test.build.dir}"/>
       <path refid="junit.classpath"/>
     </classpath>
-    <arg value="--select-class=BlackJackTest"/>
+    <arg value="--scan-classpath"/>
     <arg value="--reports-dir=${test.report.dir}"/>
   </java>
 </target>
+
  <!--<target name="test" depends="compile">
   <junit printsummary="yes" haltonfailure="yes">
     <classpath>
@@ -168,19 +183,7 @@
   </junit>
 </target> !-->
 
-<target name="compile-tests" depends="compile" description="Compile test source files">
-  <mkdir dir="${test.build.dir}"/>
-  <javac srcdir="${src.dir}"
-         destdir="${test.build.dir}"
-         includeantruntime="false"
-         debug="true"
-         includes="BlackJackTest.java">
-    <classpath>
-      <pathelement location="${build.dir}"/>
-      <path refid="junit.classpath"/>
-    </classpath>
-  </javac>
-</target>
+
 
   <target name="package" description="Build the native installer for the current OS (DMG, DEB, or MSI)">
     <antcall target="dmg"/>
