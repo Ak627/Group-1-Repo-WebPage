@@ -22,7 +22,7 @@ public class Hand {
             }
             handString.append(cards.get(i).displayCard());
         }
-        return handString.toString(); 
+        return handString.toString();
     }
 
     public int getSize() {

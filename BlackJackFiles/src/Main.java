@@ -23,11 +23,10 @@ public class Main{
         JLabel handLabel = new JLabel();
         JLabel handUi = new JLabel("Your Hand");
         cardsLabel.setBounds(200, 100, 100, 100);
-        handLabel.setBounds(150, 500, 250, 100);
+        handLabel.setBounds(100, 500, 300, 100);
         handUi.setBounds(175, 450, 100, 100);
 
         
-
 
         JButton shuffleB = new JButton("Shuffle");
         shuffleB.setBounds(SwingConstants.LEFT, 350, 220, 50);
@@ -46,7 +45,11 @@ public class Main{
         drawB.setBounds(SwingConstants.RIGHT+220,350, 220, 50);
         frame.add(drawB);
         drawB.addActionListener(e -> {
-            cardsLabel.setText(deck.draw().displayCard());
+            Card currentCard;
+            currentCard = deck.draw();
+            cardsLabel.setText(currentCard.displayCard());
+            hand.addCard(currentCard);
+            handLabel.setText(hand.showHand());
         });
 
         JButton resetB = new JButton("Reset");
