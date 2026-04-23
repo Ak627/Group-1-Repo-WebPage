@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="JUnit Jupiter" tests="31" skipped="0" failures="0" errors="0" time="1.189" hostname="vboxuser" timestamp="2026-04-23T11:26:55">
+<properties>
+<property name="file.encoding" value="UTF-8"/>
+<property name="file.separator" value="/"/>
+<property name="java.class.path" value="/home/dan/college/cs3250/Group-1-Repo/BlackJackFiles/build/classes:/home/dan/college/cs3250/Group-1-Repo/BlackJackFiles/build/test-classes:/usr/share/java/junit-platform-console-standalone.jar:/usr/share/java/junit-jupiter-api.jar:/usr/share/java/junit-jupiter-engine.jar:/usr/share/java/junit-platform-launcher.jar:/usr/share/java/junit-platform-engine.jar:/usr/share/java/junit-platform-commons.jar:/usr/share/java/opentest4j.jar"/>
+<property name="java.class.version" value="65.0"/>
+<property name="java.home" value="/usr/lib/jvm/java-21-openjdk-amd64"/>
+<property name="java.io.tmpdir" value="/tmp"/>
+<property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+<property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+<property name="java.runtime.version" value="21.0.10+7-Ubuntu-124.04"/>
+<property name="java.specification.name" value="Java Platform API Specification"/>
+<property name="java.specification.vendor" value="Oracle Corporation"/>
+<property name="java.specification.version" value="21"/>
+<property name="java.vendor" value="Ubuntu"/>
+<property name="java.vendor.url" value="https://ubuntu.com/"/>
+<property name="java.vendor.url.bug" value="https://bugs.launchpad.net/ubuntu/+source/openjdk-21"/>
+<property name="java.version" value="21.0.10"/>
+<property name="java.version.date" value="2026-01-20"/>
+<property name="java.vm.compressedOopsMode" value="32-bit"/>
+<property name="java.vm.info" value="mixed mode, sharing"/>
+<property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+<property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+<property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+<property name="java.vm.specification.version" value="21"/>
+<property name="java.vm.vendor" value="Ubuntu"/>
+<property name="java.vm.version" value="21.0.10+7-Ubuntu-124.04"/>
+<property name="jdk.debug" value="release"/>
+<property name="line.separator" value="
+"/>
+<property name="native.encoding" value="UTF-8"/>
+<property name="os.arch" value="amd64"/>
+<property name="os.name" value="Linux"/>
+<property name="os.version" value="6.17.0-20-generic"/>
+<property name="path.separator" value=":"/>
+<property name="stderr.encoding" value="UTF-8"/>
+<property name="stdout.encoding" value="UTF-8"/>
+<property name="sun.arch.data.model" value="64"/>
+<property name="sun.boot.library.path" value="/usr/lib/jvm/java-21-openjdk-amd64/lib"/>
+<property name="sun.cpu.endian" value="little"/>
+<property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+<property name="sun.java.command" value="org.junit.platform.console.ConsoleLauncher --scan-classpath --reports-dir=build/test-reports"/>
+<property name="sun.java.launcher" value="SUN_STANDARD"/>
+<property name="sun.jnu.encoding" value="UTF-8"/>
+<property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+<property name="user.country" value="US"/>
+<property name="user.dir" value="/home/dan/college/cs3250/Group-1-Repo/BlackJackFiles"/>
+<property name="user.home" value="/home/dan"/>
+<property name="user.language" value="en"/>
+<property name="user.name" value="dan"/>
+<property name="user.timezone" value="America/Denver"/>
+</properties>
+<testcase name="testShuffleChangesOrder()" classname="BlackJackTest" time="0.002">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testShuffleChangesOrder()]
+display-name: testShuffleChangesOrder()
+]]></system-out>
+</testcase>
+<testcase name="testIsBustFalse()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testIsBustFalse()]
+display-name: testIsBustFalse()
+]]></system-out>
+</testcase>
+<testcase name="testDeckSizeDecreasesAfterDraw()" classname="BlackJackTest" time="0.4">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testDeckSizeDecreasesAfterDraw()]
+display-name: testDeckSizeDecreasesAfterDraw()
+]]></system-out>
+</testcase>
+<testcase name="testDeckInitializationSize()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testDeckInitializationSize()]
+display-name: testDeckInitializationSize()
+]]></system-out>
+</testcase>
+<testcase name="testPlayerWins()" classname="BlackJackTest" time="0.016">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testPlayerWins()]
+display-name: testPlayerWins()
+]]></system-out>
+</testcase>
+<testcase name="testFaceCardValue()" classname="BlackJackTest" time="0.003">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testFaceCardValue()]
+display-name: testFaceCardValue()
+]]></system-out>
+</testcase>
+<testcase name="testTie()" classname="BlackJackTest" time="0.002">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testTie()]
+display-name: testTie()
+]]></system-out>
+</testcase>
+<testcase name="testDealerDrawsUntil17()" classname="BlackJackTest" time="0.03">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testDealerDrawsUntil17()]
+display-name: testDealerDrawsUntil17()
+]]></system-out>
+</testcase>
+<testcase name="testIsBustTrue()" classname="BlackJackTest" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testIsBustTrue()]
+display-name: testIsBustTrue()
+]]></system-out>
+</testcase>
+<testcase name="testHandAceDropsToOne()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testHandAceDropsToOne()]
+display-name: testHandAceDropsToOne()
+]]></system-out>
+</testcase>
+<testcase name="testHandAcePlusTenEquals21()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testHandAcePlusTenEquals21()]
+display-name: testHandAcePlusTenEquals21()
+]]></system-out>
+</testcase>
+<testcase name="testDeskSize()" classname="DeskTest" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:DeskTest]/[method:testDeskSize()]
+display-name: testDeskSize()
+]]></system-out>
+</testcase>
+<testcase name="testPlayerBustDealerWins()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testPlayerBustDealerWins()]
+display-name: testPlayerBustDealerWins()
+]]></system-out>
+</testcase>
+<testcase name="testNoDuplicateDraws()" classname="BlackJackTest" time="0.089">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testNoDuplicateDraws()]
+display-name: testNoDuplicateDraws()
+]]></system-out>
+</testcase>
+<testcase name="testSuit()" classname="CardTest" time="0.002">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:CardTest]/[method:testSuit()]
+display-name: testSuit()
+]]></system-out>
+</testcase>
+<testcase name="testIsBlackjackTrue()" classname="BlackJackTest" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testIsBlackjackTrue()]
+display-name: testIsBlackjackTrue()
+]]></system-out>
+</testcase>
+<testcase name="testStandDoesNotAddCard()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testStandDoesNotAddCard()]
+display-name: testStandDoesNotAddCard()
+]]></system-out>
+</testcase>
+<testcase name="testDisplayCard()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testDisplayCard()]
+display-name: testDisplayCard()
+]]></system-out>
+</testcase>
+<testcase name="testHitIncreasesHandSize()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testHitIncreasesHandSize()]
+display-name: testHitIncreasesHandSize()
+]]></system-out>
+</testcase>
+<testcase name="testDrawReturnsCard()" classname="BlackJackTest" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testDrawReturnsCard()]
+display-name: testDrawReturnsCard()
+]]></system-out>
+</testcase>
+<testcase name="testNumberCardValue()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testNumberCardValue()]
+display-name: testNumberCardValue()
+]]></system-out>
+</testcase>
+<testcase name="testAceDefaultValue()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testAceDefaultValue()]
+display-name: testAceDefaultValue()
+]]></system-out>
+</testcase>
+<testcase name="testRank()" classname="CardTest" time="0.022">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:CardTest]/[method:testRank()]
+display-name: testRank()
+]]></system-out>
+</testcase>
+<testcase name="testDealInitialHands()" classname="BlackJackTest" time="0.003">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testDealInitialHands()]
+display-name: testDealInitialHands()
+]]></system-out>
+</testcase>
+<testcase name="testResetRestoresDeck()" classname="BlackJackTest" time="0.003">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testResetRestoresDeck()]
+display-name: testResetRestoresDeck()
+]]></system-out>
+</testcase>
+<testcase name="testNewDeckHas52Cards()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testNewDeckHas52Cards()]
+display-name: testNewDeckHas52Cards()
+]]></system-out>
+</testcase>
+<testcase name="testShuffleMaintainsDeckSize()" classname="BlackJackTest" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testShuffleMaintainsDeckSize()]
+display-name: testShuffleMaintainsDeckSize()
+]]></system-out>
+</testcase>
+<testcase name="testDrawAllCardsNoBlock()" classname="BlackJackTest" time="0.132">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testDrawAllCardsNoBlock()]
+display-name: testDrawAllCardsNoBlock()
+]]></system-out>
+</testcase>
+<testcase name="testFirstCard()" classname="DeskTest" time="0.019">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:DeskTest]/[method:testFirstCard()]
+display-name: testFirstCard()
+]]></system-out>
+</testcase>
+<testcase name="testIsBlackjackFalseThreeCards()" classname="BlackJackTest" time="0.001">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testIsBlackjackFalseThreeCards()]
+display-name: testIsBlackjackFalseThreeCards()
+]]></system-out>
+</testcase>
+<testcase name="testDealerWins()" classname="BlackJackTest" time="0">
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]/[class:BlackJackTest]/[method:testDealerWins()]
+display-name: testDealerWins()
+]]></system-out>
+</testcase>
+<system-out><![CDATA[
+unique-id: [engine:junit-jupiter]
+display-name: JUnit Jupiter
+]]></system-out>
+</testsuite>
