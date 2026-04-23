@@ -14,10 +14,23 @@ public class Hand {
         cards.add(card);
     }
 
+    public String showHand(){
+        StringBuilder handString = new StringBuilder();
+        for(int i = 0; i < cards.size(); i++){
+            if (handString.length() > 0){ 
+                handString.append(", ");
+            }
+            handString.append(cards.get(i).displayCard());
+        }
+        return handString.toString(); 
+    }
+
     public int getSize() {
         return cards.size();
     }
-
+    public void resetHand(){
+        cards.clear();
+    }
     public int getValue() {
         int total = 0;
         int aces = 0;
