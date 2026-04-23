@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 * @version 1.0
  */
 public class DeskTest {
-    /** Constructor. 
+    /** Constructor. */
+    /* 
     public DeskTest() {}
-    /**
      * Set up the test fixture.
      * Called before every test case method.
      */
