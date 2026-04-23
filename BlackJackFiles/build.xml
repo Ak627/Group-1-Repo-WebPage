@@ -4,7 +4,6 @@
   <property name="app.name"    value="BlackJackTeacher"/>
   <property name="app.version" value="1.1.0"/>
   <property name="main.class"  value="Main"/>
-
   <property name="src.dir"     value="src"/>
   <property name="build.dir"   value="build/classes"/>
   <property name="jar.dir"     value="build/jar"/>
@@ -15,6 +14,9 @@
   <!-- new targets !-->
   <property name="test.build.dir"   value="build/test-classes"/>
   <property name="test.report.dir"  value="build/test-reports"/>
+  <property name="jacoco.dir"        value="build/jacoco"/>
+  <property name="jacoco.report.dir" value="build/BlackJackCoverage"/>
+  <property name="jacoco.exec"       value="${jacoco.dir}/jacoco.exec"/>
 
 
   <!-- JUnit 5 JARs installed via apt (junit5 package) -->
@@ -29,6 +31,17 @@
     <pathelement location="/usr/share/java/junit-platform-commons.jar"/>
     <pathelement location="/usr/share/java/opentest4j.jar"/>
   </path>
+
+<taskdef resource="org/jacoco/ant/antlib.xml"
+         uri="antlib:org.jacoco.ant">
+  <classpath>
+    <pathelement location="/usr/share/java/org.jacoco.ant.jar"/>
+    <pathelement location="/usr/share/java/org.jacoco.core.jar"/>
+    <pathelement location="/usr/share/java/org.jacoco.report.jar"/>
+    <pathelement location="/usr/share/java/org.jacoco.agent.jar"/>
+    <pathelement location="/usr/share/java/asm-all.jar"/>
+  </classpath>
+</taskdef>
 
 
   <!-- Javadoc external API links. Uses the JDK running Ant; no hard-coded Java version. -->
@@ -133,19 +146,45 @@
   </javac>
 </target>
 
-<target name="test" depends="compile-tests" description="Run JUnit 5 tests">
+
+<target name="test" depends="compile-tests" description="Run JUnit 5 tests with JaCoCo coverage">
+  <mkdir dir="${jacoco.dir}"/>
   <mkdir dir="${test.report.dir}"/>
-  <java classname="org.junit.platform.console.ConsoleLauncher"
-        fork="true"
-        failonerror="true">
-    <classpath>
-      <pathelement location="${build.dir}"/>
-      <pathelement location="${test.build.dir}"/>
-      <path refid="junit.classpath"/>
-    </classpath>
-    <arg value="--scan-classpath"/>
-    <arg value="--reports-dir=${test.report.dir}"/>
-  </java>
+
+  <jacoco:coverage destfile="${jacoco.exec}"
+                   xmlns:jacoco="antlib:org.jacoco.ant">
+    <java classname="org.junit.platform.console.ConsoleLauncher"
+          fork="true"
+          failonerror="true">
+      <classpath>
+        <pathelement location="${build.dir}"/>
+        <pathelement location="${test.build.dir}"/>
+        <path refid="junit.classpath"/>
+      </classpath>
+      <arg value="--scan-classpath"/>
+      <arg value="--reports-dir=${test.report.dir}"/>
+    </java>
+  </jacoco:coverage>
+</target>
+
+<target name="report" depends="test" description="Generate JaCoCo coverage report">
+  <mkdir dir="${jacoco.report.dir}"/>
+  <jacoco:report xmlns:jacoco="antlib:org.jacoco.ant">
+    <executiondata>
+      <file file="${jacoco.exec}"/>
+    </executiondata>
+    <structure name="${app.name}">
+      <classfiles>
+        <fileset dir="${build.dir}"/>
+      </classfiles>
+      <sourcefiles encoding="UTF-8">
+        <fileset dir="${src.dir}"/>
+      </sourcefiles>
+    </structure>
+    <html destdir="${jacoco.report.dir}"/>
+    <csv  destfile="${jacoco.report.dir}/coverage.csv"/>
+  </jacoco:report>
+  <echo message="Coverage report: ${jacoco.report.dir}/index.html"/>
 </target>
 
   <target name="jar" depends="compile" description="Package classes into an executable JAR">
