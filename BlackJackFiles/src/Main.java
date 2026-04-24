@@ -22,9 +22,11 @@ public class Main{
         JLabel cardsLabel = new JLabel();//test label to check if cards can update on screen
         JLabel handLabel = new JLabel();
         JLabel handUi = new JLabel("Your Hand");
+        JLabel value = new JLabel("Value:");
         cardsLabel.setBounds(200, 100, 100, 100);
         handLabel.setBounds(100, 500, 300, 100);
         handUi.setBounds(175, 450, 100, 100);
+        value.setBounds(100,75,100,100);
 
         
 
@@ -38,7 +40,7 @@ public class Main{
             hand.addCard(deck.draw());
             hand.addCard(deck.draw());
             handLabel.setText(hand.showHand());
-            
+            value.setText("Value: " + Integer.toString(hand.getValue()));
         });
 
         JButton drawB = new JButton("Draw");
@@ -50,6 +52,7 @@ public class Main{
             cardsLabel.setText(currentCard.displayCard());
             hand.addCard(currentCard);
             handLabel.setText(hand.showHand());
+            value.setText("Value:" + Integer.toString(hand.getValue()));
         });
 
         JButton resetB = new JButton("Reset");
@@ -57,13 +60,17 @@ public class Main{
         frame.add(resetB);
         resetB.addActionListener(e -> {
             cardsLabel.setText("Deck Reset");
+            hand.resetHand();
             deck.reset();
+            handLabel.setText("");
+            value.setText("Value:");
         });
 
 
         frame.add(cardsLabel);
         frame.add(handLabel);
         frame.add(handUi);
+        frame.add(value);
         frame.add(label);
         frame.setSize(500, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
