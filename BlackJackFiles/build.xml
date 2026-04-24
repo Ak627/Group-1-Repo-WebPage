@@ -2,16 +2,47 @@
 <project name="MyAntApp" default="package" basedir=".">
 
   <property name="app.name"    value="BlackJackTeacher"/>
-  <property name="app.version" value="1.1.0"/>
+  <property name="app.version" value="1.2.0"/>
   <property name="main.class"  value="Main"/>
-
   <property name="src.dir"     value="src"/>
   <property name="build.dir"   value="build/classes"/>
   <property name="jar.dir"     value="build/jar"/>
   <property name="dist.dir"    value="dist"/>
   <property name="docs.dir"    value="build/docs"/>
+  <property name="lib.dir"     value="lib"/>
+  <property name="test.dir"    value="src"/> 
+  <!-- new targets !-->
+  <property name="test.build.dir"   value="build/test-classes"/>
+  <property name="test.report.dir"  value="build/test-reports"/>
+  <property name="jacoco.dir"        value="build/jacoco"/>
+  <property name="jacoco.report.dir" value="build/BlackJackCoverage"/>
+  <property name="jacoco.exec"       value="${jacoco.dir}/jacoco.exec"/>
 
-  <property name="junit.jar" value="lib/junit-platform-console-standalone-6.1.0-M1.jar"/>
+
+  <!-- JUnit 5 JARs installed via apt (junit5 package) -->
+  <property name="junit.jar"
+            value="/usr/share/java/junit-platform-console-standalone.jar"/>
+  <path id="junit.classpath">
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="/usr/share/java/junit-jupiter-api.jar"/>
+    <pathelement location="/usr/share/java/junit-jupiter-engine.jar"/>
+    <pathelement location="/usr/share/java/junit-platform-launcher.jar"/>
+    <pathelement location="/usr/share/java/junit-platform-engine.jar"/>
+    <pathelement location="/usr/share/java/junit-platform-commons.jar"/>
+    <pathelement location="/usr/share/java/opentest4j.jar"/>
+  </path>
+
+<taskdef resource="org/jacoco/ant/antlib.xml"
+         uri="antlib:org.jacoco.ant">
+  <classpath>
+    <pathelement location="/usr/share/java/org.jacoco.ant.jar"/>
+    <pathelement location="/usr/share/java/org.jacoco.core.jar"/>
+    <pathelement location="/usr/share/java/org.jacoco.report.jar"/>
+    <pathelement location="/usr/share/java/org.jacoco.agent.jar"/>
+    <pathelement location="/usr/share/java/asm-all.jar"/>
+  </classpath>
+</taskdef>
+
 
   <!-- Javadoc external API links. Uses the JDK running Ant; no hard-coded Java version. -->
   <condition property="javadoc.api.url" value="https://docs.oracle.com/javase/8/docs/api/">
@@ -22,7 +53,6 @@
       <equals arg1="${java.specification.version}" arg2="1.8"/>
     </not>
   </condition>
-
   <macrodef name="generate-javadoc">
     <attribute name="access-level" default="protected"/>
     <attribute name="output-subdir"/>
@@ -48,22 +78,18 @@
         </javadoc>
     </sequential>
   </macrodef>
-
   <condition property="isMac">
     <os family="mac"/>
   </condition>
-
   <condition property="isLinux">
     <and>
       <os family="unix"/>
       <not><os family="mac"/></not>
     </and>
   </condition>
-
   <condition property="isWindows">
     <os family="windows"/>
   </condition>
-
   <condition property="icon.file" value="icon.icns">
     <isset property="isMac"/>
   </condition>
@@ -76,7 +102,6 @@
   <condition property="icon.file" value="icon.png">
     <not><isset property="icon.file"/></not>
   </condition>
-
   <target name="preflight" description="Print toolchain/OS info">
     <echo message="Java: ${java.runtime.name} ${java.runtime.version}"/>
     <echo message="Java Vendor: ${java.vendor}"/>
@@ -84,36 +109,76 @@
     <echo message="Java Spec Version: ${java.specification.version}"/>
     <echo message="OS: ${os.name} ${os.version} (${os.arch})"/>
   </target>
-
   <target name="clean" description="Remove all build and distribution files">
     <delete dir="build"/>
     <delete dir="${dist.dir}"/>
   </target>
 
-  <target name="compile" depends="preflight" description="Compile Java source code">
-    <mkdir dir="${build.dir}"/>
-    <javac srcdir="${src.dir}"
-           destdir="${build.dir}"
-           includeantruntime="false"
-           debug="true">
-      <classpath>
-        <pathelement path="${junit.jar}"/>
-      </classpath>
-    </javac>
-  </target>
+<target name="compile" depends="preflight" description="Compile Java source code">
+  <mkdir dir="${build.dir}"/>
+  <javac srcdir="${src.dir}"
+         destdir="${build.dir}"
+         includeantruntime="false"
+         debug="true"
+         excludes="*Test.java">
+    <classpath refid="junit.classpath"/>
+  </javac>
+</target>
 
-  <target name="test" depends="compile" description="Run JUnit 5 tests">
+<target name="compile-tests" depends="compile" description="Compile test source files">
+  <mkdir dir="${test.build.dir}"/>
+  <javac srcdir="${src.dir}"
+         destdir="${test.build.dir}"
+         includeantruntime="false"
+         debug="true"
+         includes="*Test.java">
+    <classpath>
+      <pathelement location="${build.dir}"/>
+      <path refid="junit.classpath"/>
+    </classpath>
+  </javac>
+</target>
+
+
+<target name="test" depends="compile-tests" description="Run JUnit 5 tests with JaCoCo coverage">
+  <mkdir dir="${jacoco.dir}"/>
+  <mkdir dir="${test.report.dir}"/>
+
+  <jacoco:coverage destfile="${jacoco.exec}"
+                   xmlns:jacoco="antlib:org.jacoco.ant">
     <java classname="org.junit.platform.console.ConsoleLauncher"
           fork="true"
-          failonerror="false">
+          failonerror="true">
       <classpath>
-        <pathelement path="${build.dir}"/>
-        <pathelement path="${junit.jar}"/>
+        <pathelement location="${build.dir}"/>
+        <pathelement location="${test.build.dir}"/>
+        <path refid="junit.classpath"/>
       </classpath>
-      <arg value="execute"/>
-      <arg value="--select-class=BlackJackTest"/>
+      <arg value="--scan-classpath"/>
+      <arg value="--reports-dir=${test.report.dir}"/>
     </java>
-  </target>
+  </jacoco:coverage>
+</target>
+
+<target name="report" depends="test" description="Generate JaCoCo coverage report">
+  <mkdir dir="${jacoco.report.dir}"/>
+  <jacoco:report xmlns:jacoco="antlib:org.jacoco.ant">
+    <executiondata>
+      <file file="${jacoco.exec}"/>
+    </executiondata>
+    <structure name="${app.name}">
+      <classfiles>
+        <fileset dir="${build.dir}"/>
+      </classfiles>
+      <sourcefiles encoding="UTF-8">
+        <fileset dir="${src.dir}"/>
+      </sourcefiles>
+    </structure>
+    <html destdir="${jacoco.report.dir}"/>
+    <csv  destfile="${jacoco.report.dir}/coverage.csv"/>
+  </jacoco:report>
+  <echo message="Coverage report: ${jacoco.report.dir}/index.html"/>
+</target>
 
   <target name="jar" depends="compile" description="Package classes into an executable JAR">
     <mkdir dir="${jar.dir}"/>
@@ -124,27 +189,39 @@
       </manifest>
     </jar>
   </target>
-
   <target name="run" depends="jar" description="Run the application from the JAR for testing">
     <java jar="${jar.dir}/${app.name}.jar" fork="true"/>
   </target>
-
   <target name="javadoc" depends="preflight" description="Generate standard API documentation">
     <generate-javadoc access-level="protected" output-subdir="api"/>
   </target>
-
   <target name="javadoc-internal" depends="preflight" description="Generate internal documentation (includes private members)">
     <generate-javadoc access-level="private" output-subdir="internal"/>
   </target>
 
   <target name="javadoc-all" depends="javadoc, javadoc-internal" description="Generate both standard and internal documentation sets"/>
 
+
+
+ <!--<target name="test" depends="compile">
+  <junit printsummary="yes" haltonfailure="yes">
+    <classpath>
+      <pathelement path="${build.dir}"/>
+      <fileset dir="${lib.dir}" includes="junit*.jar"/>
+    </classpath>
+    <batchtest>
+      <fileset dir="${test.dir}" includes="**/*Test.java"/>
+    </batchtest>
+  </junit>
+</target> !-->
+
+
+
   <target name="package" description="Build the native installer for the current OS (DMG, DEB, or MSI)">
     <antcall target="dmg"/>
     <antcall target="debian"/>
     <antcall target="windows"/>
   </target>
-
   <target name="dmg" depends="jar" if="isMac" description="[Mac Only] Builds the .dmg installer">
     <mkdir dir="${dist.dir}"/>
     <exec executable="jpackage" failonerror="true">
@@ -159,7 +236,6 @@
       <arg value="--mac-package-name"/><arg value="${app.name}"/>
       <arg value="--mac-package-identifier"/><arg value="com.example.${app.name}"/>
     </exec>
-
     <move todir="${dist.dir}">
       <fileset dir="${dist.dir}">
         <include name="${app.name}*.dmg"/>
@@ -167,10 +243,8 @@
       </fileset>
       <mapper type="merge" to="${app.name}-Installer.dmg"/>
     </move>
-
     <echo message="Success! MacOS Installer: ${dist.dir}/${app.name}-Installer.dmg"/>
   </target>
-
   <target name="debian" depends="jar" if="isLinux" description="[Linux Only] Builds the .deb package">
     <mkdir dir="${dist.dir}"/>
     <exec executable="jpackage" failonerror="true">
@@ -193,7 +267,6 @@
     </move>
     <echo message="Success! Debian Package: ${dist.dir}/${app.name}-Linux.deb"/>
   </target>
-
   <target name="windows" depends="jar" if="isWindows" description="[Windows Only] Builds the .msi installer">
     <mkdir dir="${dist.dir}"/>
     <exec executable="jpackage" failonerror="true">
@@ -218,5 +291,4 @@
     </move>
     <echo message="Success! Windows Installer: ${dist.dir}/${app.name}-Windows.msi"/>
   </target>
-
 </project>

@@ -14,6 +14,10 @@ public class Hand {
         cards.add(card);
     }
 
+    public List<Card> getCards() {
+        return cards;
+    }
+
     public String showHand(){
         StringBuilder handString = new StringBuilder();
         for(int i = 0; i < cards.size(); i++){
