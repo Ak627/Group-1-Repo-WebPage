@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Sample-Project" basedir="." default="all" xmlns:jacoco="antlib:org.jacoco.ant">
+  <property file="build.properties"/>
+
+  <path id="tool.path">
+    <fileset dir="${tool.jars}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+  <path id="pmd.path">
+    <fileset dir="${pmd.home}/lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+           classpath="${tool.jars}/checkstyle-13.3.0-all.jar"/>
+  <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"
+           classpathref="pmd.path"/>
+  <taskdef name="cpd" classname="net.sourceforge.pmd.ant.CPDTask"
+           classpathref="pmd.path"/>
+  <taskdef resource="edu/umd/cs/findbugs/anttask/tasks.properties"
+           classpath="${spotbugs.home}/lib/spotbugs-ant.jar"/>
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="${tool.jars}/jacocoant.jar"/>
+  </taskdef>
+
+  <target name="help"
+          description="Display detailed usage information">
+    <echo>To list all of the available build targets:</echo>
+    <echo>ant -p</echo>
+    <echo>To invoke a specific target, such as 'clean':</echo>
+    <echo>ant clean</echo>
+  </target>
+
+  <target name="all" depends="clean,init,dist,doc,quality"
+          description="Invoke all build and quality targets"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile & dist -->
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${class.dir}"/>
+    <mkdir dir="${dist.dir}"/>
+    <!-- Create the directory structure used by javadoc -->
+    <mkdir dir="${doc.dir}"/>
+    <!-- Create the directory structure used by tests -->
+    <mkdir dir="${results.dir}"/>
+  </target>
+
+  <target name="clean"
+          description="Delete generated files and directories">
+    <delete dir="${build.dir}"/>
+    <delete dir="${class.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${doc.dir}"/>
+    <delete dir="${results.dir}"/>
+  </target>
+
+  <target name="compile" depends="init"
+          description="Compile the application">
+    <javac destdir="${class.dir}"
+           debug="true"
+           includeantruntime="false">
+      <src path="${src.dir}"/>
+      <classpath path="${junit.jar}"/>
+    </javac>
+  </target>
+
+  <target name="quality" depends="init,pmd,cpd,spotbugs,checkstyle,test"
+          description="Run all quality checks: PMD, CPD, SpotBugs, Checkstyle, JUnit">
+    <echo>Results placed in ${results.dir}</echo>
+  </target>
+
+  <target name="junit" depends="test"
+          description="Synonym for test (runs junit tests)"/>
+  <target name="test" depends="compile"
+          description="Run JUnit 5 tests">
+    <echo>Running JUnit with JaCoCo</echo>
+    <mkdir dir="${junit.results.dir}"/>
+    <mkdir dir="${jacoco.results.dir}"/>
+    <jacoco:coverage destfile="${jacoco.exec.file}">
+      <java classname="org.junit.platform.console.ConsoleLauncher"
+            fork="true"
+            failonerror="false">
+        <classpath>
+          <pathelement location="${class.dir}"/>
+          <pathelement location="${junit.jar}"/>
+        </classpath>
+        <arg value="execute"/>
+        <arg value="--scan-classpath=${class.dir}"/>
+        <arg value="--reports-dir=${junit.results.dir}"/>
+        <arg value="--exclude-engine=junit-vintage"/>
+      </java>
+    </jacoco:coverage>
+    <jacoco:report>
+      <executiondata>
+        <file file="${jacoco.exec.file}"/>
+      </executiondata>
+      <structure name="${project.name} Test Coverage Report">
+        <classfiles>
+          <fileset dir="${class.dir}">
+            <exclude name="**/*Test.class"/>
+          </fileset>
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <fileset dir="${src.dir}"/>
+        </sourcefiles>
+      </structure>
+      <html destdir="${jacoco.results.dir}"/>
+      <csv  destfile="${jacoco.results.dir}/jacoco_results.csv"/>
+      <xml  destfile="${jacoco.results.dir}/jacoco_results.xml"/>
+    </jacoco:report>
+    <junitreport todir="${junit.results.dir}">
+      <fileset dir="${junit.results.dir}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="${junit.results.dir}"/>
+    </junitreport>
+    <echo message="JUnit report: ${junit.results.dir}/index.html"/>
+    <echo message="JaCoCo report: ${jacoco.results.dir}/index.html"/>
+  </target>
+
+  <target name="junit-simple" depends="compile"
+          description="Run one JUnit 5 test class">
+    <java classname="org.junit.platform.console.ConsoleLauncher"
+          fork="true"
+          failonerror="false"
+          output="${results.dir}/junit-simple.txt">
+      <classpath>
+        <pathelement location="${class.dir}"/>
+        <pathelement location="${junit.jar}"/>
+      </classpath>
+      <arg value="execute"/>
+      <arg value="--scan-classpath=${class.dir}"/>
+      <arg value="--reports-dir=${junit.results.dir}"/>
+      <arg value="--exclude-engine=junit-vintage"/>
+    </java>
+  </target>
+
+  <target name="pmd" depends="init, doc"
+          description="Analyze source using PMD">
+    <echo>Running PMD</echo>
+    <pmd noCache="true">
+      <ruleset>tools/pmd/ruleset.xml</ruleset>
+      <formatter type="xml"
+                 toFile="${results.dir}/pmd_report.xml"/>
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+    </pmd>
+    <xslt in="${results.dir}/pmd_report.xml"
+          out="${results.dir}/pmd_report.html"
+          style="${pmd.home}/pmd-report.xsl">
+      <param name="linkPrefix" expression="../${doc.dir}/src-html/"/>
+    </xslt>
+  </target>
+
+  <target name="cpd" depends="init"
+          description="Analyze source using CPD">
+    <echo>Running CPD</echo>
+    <cpd minimumTokenCount="100"
+         outputFile="${results.dir}/cpd.txt"
+         format="text">
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+    </cpd>
+  </target>
+
+  <target name="checkstyle" depends="init"
+          description="Validate style using chestyle">
+    <echo>Running Checkstyle</echo>
+    <checkstyle config="${checkstyle.dir}/checkstyle-master.xml"
+                failureProperty="checkstyle.failure"
+                failOnViolation="false">
+      <fileset dir="${src.dir}" includes="**/*.java"/>
+      <property key="checkstyle.dir" value="${checkstyle.dir}"/>
+      <property key="checkstyle.suppressions.file" value="${checkstyle.dir}/${checkstyle.suppressions.file}"/>
+      <property key="checkstyle.importcontrol.file" value="${checkstyle.dir}/${checkstyle.importcontrol.file}"/>
+      <property key="translation.severity" value="${translation.severity}"/>
+      <formatter type="plain" tofile="${results.dir}/checkstyle_report.txt"/>
+      <formatter type="xml" tofile="${results.dir}/checkstyle_report.xml"/>
+    </checkstyle>
+    <xslt in="${results.dir}/checkstyle_report.xml"
+          out="${results.dir}/checkstyle_report.html"
+          style="${checkstyle.dir}/contrib/checkstyle-noframes.xsl"/>
+  </target>
+
+  <target name="spotbugs" depends="compile"
+          description="Analyze using SpotBugs">
+    <echo>Running SpotBugs</echo>
+    <spotbugs home="${spotbugs.home}"
+              output="html"
+              outputFile="${results.dir}/spotbugs.html"
+              reportLevel="medium"
+              effort="default">
+      <auxClasspath path="${junit.jar}" />
+      <sourcePath path="${src.dir}" />
+      <class location="${class.dir}" />
+    </spotbugs>
+  </target>
+
+  <target name="javadoc" depends="doc"
+          description="Synonym for doc (generates documentation, including javadoc)"/>
+  <target name="doc" depends="compile"
+          description="Generate documentation, including javadoc">
+    <echo>Creating API Documentation</echo>
+    <javadoc destdir="${doc.dir}"
+             author="true"
+             version="true"
+             use="true"
+             private="true"
+             linksource="yes"
+             classpath="${class.dir}:${junit.jar}">
+      <fileset dir="src" defaultexcludes="yes">
+        <include name="*.java"/>
+      </fileset>
+    </javadoc>
+  </target>
+
+  <target name="dist" depends="compile"
+          description="Generate the distribution/jar">
+    <echo>Generating Distribution</echo>
+    <!-- Consider using zipfileset -->
+    <jar destfile="${dist.dir}/${project.name}${DSTAMP}.jar"
+         basedir="${class.dir}"
+         excludes="**/*Test.class"/>
+  </target>
+
+</project>

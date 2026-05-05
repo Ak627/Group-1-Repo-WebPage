@@ -1,34 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="MyAntApp" default="package" basedir=".">
+<project name="BlackJackTeacher" basedir="." default="all" xmlns:jacoco="antlib:org.jacoco.ant">
 
+  <!-- ═══════════════════════════════════════════════════════════════
+       Project identity
+       ═══════════════════════════════════════════════════════════════ -->
   <property name="app.name"    value="BlackJackTeacher"/>
   <property name="app.version" value="1.2.0"/>
   <property name="main.class"  value="Main"/>
+  <property name="project.name" value="${app.name}"/>
 
-  <property name="src.dir"     value="src"/>
-  <property name="build.dir"   value="build/classes"/>
-  <property name="jar.dir"     value="build/jar"/>
-  <property name="dist.dir"    value="dist"/>
-  <property name="docs.dir"    value="build/docs"/>
+  <!-- ═══════════════════════════════════════════════════════════════
+       Directory layout
+       FIX: src.dir points to BlackJackFiles/src (not tools/src)
+       ═══════════════════════════════════════════════════════════════ -->
+  <property name="src.dir"           value="src"/>
+  <property name="build.dir"         value="build"/>
+  <property name="class.dir"         value="${build.dir}/classes"/>
+  <property name="test.build.dir"    value="${build.dir}/test-classes"/>
+  <property name="jar.dir"           value="${build.dir}/jar"/>
+  <property name="dist.dir"          value="dist"/>
+  <property name="doc.dir"           value="${build.dir}/docs"/>
+  <property name="lib.dir"           value="lib"/>
+  <property name="results.dir"       value="results"/>
 
-  <property name="junit.jar" value="lib/junit-platform-console-standalone-6.1.0-M1.jar"/>
+  <!-- Quality-tool subdirectory results -->
+  <property name="junit.results.dir"  value="${results.dir}/junit"/>
+  <property name="jacoco.results.dir" value="${results.dir}/jacoco"/>
+  <property name="jacoco.exec.file"   value="${jacoco.results.dir}/jacoco.exec"/>
 
-  <!-- Javadoc external API links. Uses the JDK running Ant; no hard-coded Java version. -->
-  <condition property="javadoc.api.url" value="https://docs.oracle.com/javase/8/docs/api/">
+  <!-- ═══════════════════════════════════════════════════════════════
+       Tool jars  (mirrors tools/build.properties layout)
+       FIX: tool.dir now resolves relative to BlackJackFiles, not tools/
+       ═══════════════════════════════════════════════════════════════ -->
+  <property name="tool.dir"      value="../tools/tools"/>
+  <property name="tool.jars"     value="../tools/tools/jars"/>
+
+  <property name="junit.jar"
+            value="${lib.dir}/junit-platform-console-standalone-6.1.0-M1.jar"/>
+
+  <property name="pmd.home"       value="${tool.dir}/pmd"/>
+  <property name="checkstyle.dir" value="${tool.dir}/checkstyle"/>
+  <property name="spotbugs.home"  value="${tool.dir}/spotbugs"/>
+
+  <property name="checkstyle.suppressions.file" value="suppressions.xml"/>
+  <property name="checkstyle.importcontrol.file" value="import-control.xml"/>
+  <property name="translation.severity"          value="warning"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Classpaths
+       ═══════════════════════════════════════════════════════════════ -->
+  <path id="junit.classpath">
+    <pathelement location="${junit.jar}"/>
+  </path>
+
+  <!-- FIX: tool.path now reads from the corrected tool.jars location -->
+  <path id="tool.path">
+    <fileset dir="${tool.jars}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <path id="pmd.path">
+    <fileset dir="${pmd.home}/lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Task definitions  (all tools from tools/build.xml, added here)
+       FIX: none of these existed in the original BlackJackFiles/build.xml
+       ═══════════════════════════════════════════════════════════════ -->
+  <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+           classpath="${tool.jars}/checkstyle-13.3.0-all.jar"/>
+
+  <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"
+           classpathref="pmd.path"/>
+  <taskdef name="cpd" classname="net.sourceforge.pmd.ant.CPDTask"
+           classpathref="pmd.path"/>
+
+  <taskdef resource="edu/umd/cs/findbugs/anttask/tasks.properties"
+           classpath="${spotbugs.home}/lib/spotbugs-ant.jar"/>
+
+  <!-- JaCoCo: loaded from bundled jars (portable; mirrors tools/build.xml) -->
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="${tool.jars}/jacocoant.jar"/>
+  </taskdef>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Javadoc URL  (detects JDK version at runtime)
+       ═══════════════════════════════════════════════════════════════ -->
+  <condition property="javadoc.api.url"
+             value="https://docs.oracle.com/javase/8/docs/api/">
     <equals arg1="${java.specification.version}" arg2="1.8"/>
   </condition>
-  <condition property="javadoc.api.url" value="https://docs.oracle.com/en/java/javase/${java.specification.version}/docs/api/">
+  <condition property="javadoc.api.url"
+             value="https://docs.oracle.com/en/java/javase/${java.specification.version}/docs/api/">
     <not>
       <equals arg1="${java.specification.version}" arg2="1.8"/>
     </not>
   </condition>
 
+  <!-- Javadoc macro (reusable for api / internal variants) -->
   <macrodef name="generate-javadoc">
     <attribute name="access-level" default="protected"/>
     <attribute name="output-subdir"/>
     <sequential>
-      <mkdir dir="${docs.dir}/@{output-subdir}"/>
-      <javadoc destdir="${docs.dir}/@{output-subdir}"
+      <mkdir dir="${doc.dir}/@{output-subdir}"/>
+      <javadoc destdir="${doc.dir}/@{output-subdir}"
                source="1.8"
                encoding="UTF-8"
                use="true"
@@ -36,30 +114,30 @@
                version="true"
                failonerror="true"
                access="@{access-level}">
-        <fileset dir="${src.dir}" includes="**/*.java"/>
+        <!-- Exclude test classes — they don't belong in API docs and
+             require JUnit annotations that confuse javadoc without
+             a full classpath.  Production sources only. -->
+        <fileset dir="${src.dir}" includes="**/*.java" excludes="**/*Test.java"/>
+        <classpath>
+          <pathelement location="${junit.jar}"/>
+        </classpath>
         <link href="${javadoc.api.url}"/>
-        <!-- Uncomment to resolve references in Javadoc comments to lib/ jars. -->
-        <!--
-            <classpath>
-            <pathelement path="${build.dir}"/>
-            <fileset dir="lib" includes="**/*.jar" erroronmissingdir="false"/>
-            </classpath>
-        -->
-        </javadoc>
+      </javadoc>
     </sequential>
   </macrodef>
 
+  <!-- ═══════════════════════════════════════════════════════════════
+       OS detection  (for platform-specific package targets)
+       ═══════════════════════════════════════════════════════════════ -->
   <condition property="isMac">
     <os family="mac"/>
   </condition>
-
   <condition property="isLinux">
     <and>
       <os family="unix"/>
       <not><os family="mac"/></not>
     </and>
   </condition>
-
   <condition property="isWindows">
     <os family="windows"/>
   </condition>
@@ -77,7 +155,44 @@
     <not><isset property="icon.file"/></not>
   </condition>
 
-  <target name="preflight" description="Print toolchain/OS info">
+  <!-- ═══════════════════════════════════════════════════════════════
+       Top-level targets
+       ═══════════════════════════════════════════════════════════════ -->
+  <target name="help"
+          description="Display detailed usage information">
+    <echo>To list all available build targets:  ant -p</echo>
+    <echo>To invoke a specific target:          ant &lt;target&gt;</echo>
+  </target>
+
+  <!-- FIX: 'all' now mirrors tools/build.xml: clean → init → dist → doc → quality -->
+  <target name="all" depends="clean,init,dist,doc,quality"
+          description="Invoke all build and quality targets"/>
+
+  <target name="init"
+          description="Create all output directories">
+    <tstamp/>
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${class.dir}"/>
+    <mkdir dir="${test.build.dir}"/>
+    <mkdir dir="${jar.dir}"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${doc.dir}"/>
+    <mkdir dir="${results.dir}"/>
+  </target>
+
+  <target name="clean"
+          description="Remove all generated files and directories">
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${doc.dir}"/>
+    <delete dir="${results.dir}"/>
+  </target>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Compilation
+       ═══════════════════════════════════════════════════════════════ -->
+  <target name="preflight"
+          description="Print toolchain / OS info">
     <echo message="Java: ${java.runtime.name} ${java.runtime.version}"/>
     <echo message="Java Vendor: ${java.vendor}"/>
     <echo message="Java Home: ${java.home}"/>
@@ -85,81 +200,231 @@
     <echo message="OS: ${os.name} ${os.version} (${os.arch})"/>
   </target>
 
-  <target name="clean" description="Remove all build and distribution files">
-    <delete dir="build"/>
-    <delete dir="${dist.dir}"/>
+  <!-- FIX: src.dir = BlackJackFiles/src; excludes test files (they need test-classes dir) -->
+  <target name="compile" depends="init,preflight"
+          description="Compile application source (no test classes)">
+    <javac srcdir="${src.dir}"
+           destdir="${class.dir}"
+           includeantruntime="false"
+           debug="true"
+           excludes="*Test.java">
+      <classpath refid="junit.classpath"/>
+    </javac>
   </target>
 
-  <target name="compile" depends="preflight" description="Compile Java source code">
-    <mkdir dir="${build.dir}"/>
+  <target name="compile-tests" depends="compile"
+          description="Compile test source files">
     <javac srcdir="${src.dir}"
-           destdir="${build.dir}"
+           destdir="${test.build.dir}"
            includeantruntime="false"
-           debug="true">
+           debug="true"
+           includes="*Test.java">
       <classpath>
-        <pathelement path="${junit.jar}"/>
+        <pathelement location="${class.dir}"/>
+        <path refid="junit.classpath"/>
       </classpath>
     </javac>
   </target>
 
-  <target name="test" depends="compile" description="Run JUnit 5 tests">
-    <java classname="org.junit.platform.console.ConsoleLauncher"
-          fork="true"
-          failonerror="false">
-      <classpath>
-        <pathelement path="${build.dir}"/>
-        <pathelement path="${junit.jar}"/>
-      </classpath>
-      <arg value="execute"/>
-      <arg value="--select-class=BlackJackTest"/>
-    </java>
+  <!-- ═══════════════════════════════════════════════════════════════
+       Testing  (JUnit 5 + JaCoCo — from tools/build.xml)
+       ═══════════════════════════════════════════════════════════════ -->
+  <target name="junit" depends="test"
+          description="Synonym for test (runs JUnit tests)"/>
+
+  <target name="test" depends="compile-tests"
+          description="Run JUnit 5 tests with JaCoCo coverage">
+    <echo>Running JUnit with JaCoCo</echo>
+    <mkdir dir="${junit.results.dir}"/>
+    <mkdir dir="${jacoco.results.dir}"/>
+    <jacoco:coverage destfile="${jacoco.exec.file}">
+      <java classname="org.junit.platform.console.ConsoleLauncher"
+            fork="true"
+            failonerror="false">
+        <classpath>
+          <pathelement location="${class.dir}"/>
+          <pathelement location="${test.build.dir}"/>
+          <path refid="junit.classpath"/>
+        </classpath>
+        <arg value="execute"/>
+        <arg value="--scan-classpath=${test.build.dir}"/>
+        <arg value="--reports-dir=${junit.results.dir}"/>
+        <arg value="--exclude-engine=junit-vintage"/>
+      </java>
+    </jacoco:coverage>
+    <jacoco:report>
+      <executiondata>
+        <file file="${jacoco.exec.file}"/>
+      </executiondata>
+      <structure name="${app.name} Test Coverage Report">
+        <classfiles>
+          <fileset dir="${class.dir}">
+            <exclude name="**/*Test.class"/>
+          </fileset>
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <!-- FIX: sourcefiles resolves to BlackJackFiles/src -->
+          <fileset dir="${src.dir}"/>
+        </sourcefiles>
+      </structure>
+      <html destdir="${jacoco.results.dir}"/>
+      <csv  destfile="${jacoco.results.dir}/jacoco_results.csv"/>
+      <xml  destfile="${jacoco.results.dir}/jacoco_results.xml"/>
+    </jacoco:report>
+    <junitreport todir="${junit.results.dir}">
+      <fileset dir="${junit.results.dir}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="${junit.results.dir}"/>
+    </junitreport>
+    <echo message="JUnit report:  ${junit.results.dir}/index.html"/>
+    <echo message="JaCoCo report: ${jacoco.results.dir}/index.html"/>
   </target>
 
-  <target name="jar" depends="compile" description="Package classes into an executable JAR">
+  <!-- ═══════════════════════════════════════════════════════════════
+       Quality targets  (PMD, CPD, SpotBugs, Checkstyle — all new)
+       FIX: none of these existed in BlackJackFiles/build.xml
+       ═══════════════════════════════════════════════════════════════ -->
+  <target name="quality" depends="init,pmd,cpd,spotbugs,checkstyle,test"
+          description="Run all quality checks: PMD, CPD, SpotBugs, Checkstyle, JUnit">
+    <echo>All quality results placed in ${results.dir}</echo>
+  </target>
+
+  <target name="pmd" depends="init,doc"
+          description="Analyze source using PMD">
+    <echo>Running PMD</echo>
+    <pmd noCache="true">
+      <!-- FIX: ruleset path resolves through tool.dir → ../tools/tools/pmd -->
+      <ruleset>${tool.dir}/pmd/ruleset.xml</ruleset>
+      <formatter type="xml"
+                 toFile="${results.dir}/pmd_report.xml"/>
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+    </pmd>
+    <xslt in="${results.dir}/pmd_report.xml"
+          out="${results.dir}/pmd_report.html"
+          style="${pmd.home}/pmd-report.xsl">
+      <param name="linkPrefix" expression="../${doc.dir}/src-html/"/>
+    </xslt>
+  </target>
+
+  <target name="cpd" depends="init"
+          description="Detect copy-paste duplication using CPD">
+    <echo>Running CPD</echo>
+    <cpd minimumTokenCount="100"
+         outputFile="${results.dir}/cpd.txt"
+         format="text">
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+    </cpd>
+  </target>
+
+  <target name="checkstyle" depends="init"
+          description="Validate style using Checkstyle">
+    <echo>Running Checkstyle</echo>
+    <checkstyle config="${checkstyle.dir}/checkstyle-master.xml"
+                failureProperty="checkstyle.failure"
+                failOnViolation="false">
+      <fileset dir="${src.dir}" includes="**/*.java"/>
+      <property key="checkstyle.dir"                  value="${checkstyle.dir}"/>
+      <property key="checkstyle.suppressions.file"    value="${checkstyle.dir}/${checkstyle.suppressions.file}"/>
+      <property key="checkstyle.importcontrol.file"   value="${checkstyle.dir}/${checkstyle.importcontrol.file}"/>
+      <property key="translation.severity"            value="${translation.severity}"/>
+      <formatter type="plain" tofile="${results.dir}/checkstyle_report.txt"/>
+      <formatter type="xml"   tofile="${results.dir}/checkstyle_report.xml"/>
+    </checkstyle>
+    <xslt in="${results.dir}/checkstyle_report.xml"
+          out="${results.dir}/checkstyle_report.html"
+          style="${checkstyle.dir}/contrib/checkstyle-noframes.xsl"/>
+  </target>
+
+  <target name="spotbugs" depends="compile"
+          description="Analyze bytecode using SpotBugs">
+    <echo>Running SpotBugs</echo>
+    <spotbugs home="${spotbugs.home}"
+              output="html"
+              outputFile="${results.dir}/spotbugs.html"
+              reportLevel="medium"
+              effort="default">
+      <auxClasspath path="${junit.jar}"/>
+      <!-- FIX: src/class paths resolve to BlackJackFiles directories -->
+      <sourcePath path="${src.dir}"/>
+      <class location="${class.dir}"/>
+    </spotbugs>
+  </target>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Documentation
+       ═══════════════════════════════════════════════════════════════ -->
+  <target name="javadoc" depends="doc"
+          description="Synonym for doc (generates Javadoc)"/>
+
+  <target name="doc" depends="compile"
+          description="Generate Javadoc API documentation">
+    <echo>Creating API Documentation</echo>
+    <generate-javadoc access-level="protected" output-subdir="api"/>
+  </target>
+
+  <target name="javadoc-internal" depends="preflight"
+          description="Generate internal documentation (includes private members)">
+    <generate-javadoc access-level="private" output-subdir="internal"/>
+  </target>
+
+  <target name="javadoc-all" depends="javadoc,javadoc-internal"
+          description="Generate both standard and internal documentation sets"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Packaging
+       ═══════════════════════════════════════════════════════════════ -->
+  <target name="dist" depends="compile"
+          description="Generate the distribution JAR">
+    <echo>Generating Distribution</echo>
     <mkdir dir="${jar.dir}"/>
-    <jar destfile="${jar.dir}/${app.name}.jar" basedir="${build.dir}">
+    <jar destfile="${jar.dir}/${app.name}.jar"
+         basedir="${class.dir}"
+         excludes="**/*Test.class">
       <manifest>
-        <attribute name="Main-Class" value="${main.class}"/>
-        <attribute name="Implementation-Version" value="${app.version}"/>
+        <attribute name="Main-Class"              value="${main.class}"/>
+        <attribute name="Implementation-Version"  value="${app.version}"/>
       </manifest>
     </jar>
   </target>
 
-  <target name="run" depends="jar" description="Run the application from the JAR for testing">
+  <target name="jar" depends="dist"
+          description="Synonym for dist (builds the JAR)"/>
+
+  <target name="run" depends="dist"
+          description="Run the application from the JAR">
     <java jar="${jar.dir}/${app.name}.jar" fork="true"/>
   </target>
 
-  <target name="javadoc" depends="preflight" description="Generate standard API documentation">
-    <generate-javadoc access-level="protected" output-subdir="api"/>
-  </target>
+  <target name="build" depends="package"
+          description="Compile and build the native installer (alias for package)"/>
 
-  <target name="javadoc-internal" depends="preflight" description="Generate internal documentation (includes private members)">
-    <generate-javadoc access-level="private" output-subdir="internal"/>
-  </target>
-
-  <target name="javadoc-all" depends="javadoc, javadoc-internal" description="Generate both standard and internal documentation sets"/>
-
-  <target name="package" description="Build the native installer for the current OS (DMG, DEB, or MSI)">
+  <target name="package"
+          description="Build the native installer for the current OS (DMG / DEB / MSI)">
     <antcall target="dmg"/>
     <antcall target="debian"/>
     <antcall target="windows"/>
   </target>
 
-  <target name="dmg" depends="jar" if="isMac" description="[Mac Only] Builds the .dmg installer">
+  <target name="dmg" depends="dist" if="isMac"
+          description="[Mac Only] Build the .dmg installer">
     <mkdir dir="${dist.dir}"/>
     <exec executable="jpackage" failonerror="true">
-      <arg value="--input"/><arg value="${jar.dir}"/>
-      <arg value="--dest"/><arg value="${dist.dir}"/>
-      <arg value="--name"/><arg value="${app.name}"/>
-      <arg value="--main-jar"/><arg value="${app.name}.jar"/>
-      <arg value="--main-class"/><arg value="${main.class}"/>
-      <arg value="--type"/><arg value="dmg"/>
-      <arg value="--icon"/><arg value="${icon.file}"/>
-      <arg value="--app-version"/><arg value="${app.version}"/>
-      <arg value="--mac-package-name"/><arg value="${app.name}"/>
-      <arg value="--mac-package-identifier"/><arg value="com.example.${app.name}"/>
+      <arg value="--input"/>        <arg value="${jar.dir}"/>
+      <arg value="--dest"/>         <arg value="${dist.dir}"/>
+      <arg value="--name"/>         <arg value="${app.name}"/>
+      <arg value="--main-jar"/>     <arg value="${app.name}.jar"/>
+      <arg value="--main-class"/>   <arg value="${main.class}"/>
+      <arg value="--type"/>         <arg value="dmg"/>
+      <arg value="--icon"/>         <arg value="${icon.file}"/>
+      <arg value="--app-version"/>  <arg value="${app.version}"/>
+      <arg value="--mac-package-name"/>       <arg value="${app.name}"/>
+      <arg value="--mac-package-identifier"/> <arg value="com.example.${app.name}"/>
     </exec>
-
     <move todir="${dist.dir}">
       <fileset dir="${dist.dir}">
         <include name="${app.name}*.dmg"/>
@@ -167,21 +432,21 @@
       </fileset>
       <mapper type="merge" to="${app.name}-Installer.dmg"/>
     </move>
-
-    <echo message="Success! MacOS Installer: ${dist.dir}/${app.name}-Installer.dmg"/>
+    <echo message="Success! macOS Installer: ${dist.dir}/${app.name}-Installer.dmg"/>
   </target>
 
-  <target name="debian" depends="jar" if="isLinux" description="[Linux Only] Builds the .deb package">
+  <target name="debian" depends="dist" if="isLinux"
+          description="[Linux Only] Build the .deb package">
     <mkdir dir="${dist.dir}"/>
     <exec executable="jpackage" failonerror="true">
-      <arg value="--input"/><arg value="${jar.dir}"/>
-      <arg value="--dest"/><arg value="${dist.dir}"/>
-      <arg value="--name"/><arg value="${app.name}"/>
-      <arg value="--main-jar"/><arg value="${app.name}.jar"/>
-      <arg value="--main-class"/><arg value="${main.class}"/>
-      <arg value="--type"/><arg value="deb"/>
-      <arg value="--icon"/><arg value="${icon.file}"/>
-      <arg value="--app-version"/><arg value="${app.version}"/>
+      <arg value="--input"/>        <arg value="${jar.dir}"/>
+      <arg value="--dest"/>         <arg value="${dist.dir}"/>
+      <arg value="--name"/>         <arg value="${app.name}"/>
+      <arg value="--main-jar"/>     <arg value="${app.name}.jar"/>
+      <arg value="--main-class"/>   <arg value="${main.class}"/>
+      <arg value="--type"/>         <arg value="deb"/>
+      <arg value="--icon"/>         <arg value="${icon.file}"/>
+      <arg value="--app-version"/>  <arg value="${app.version}"/>
       <arg value="--linux-shortcut"/>
     </exec>
     <move todir="${dist.dir}">
@@ -194,17 +459,18 @@
     <echo message="Success! Debian Package: ${dist.dir}/${app.name}-Linux.deb"/>
   </target>
 
-  <target name="windows" depends="jar" if="isWindows" description="[Windows Only] Builds the .msi installer">
+  <target name="windows" depends="dist" if="isWindows"
+          description="[Windows Only] Build the .msi installer">
     <mkdir dir="${dist.dir}"/>
     <exec executable="jpackage" failonerror="true">
-      <arg value="--input"/><arg value="${jar.dir}"/>
-      <arg value="--dest"/><arg value="${dist.dir}"/>
-      <arg value="--name"/><arg value="${app.name}"/>
-      <arg value="--main-jar"/><arg value="${app.name}.jar"/>
-      <arg value="--main-class"/><arg value="${main.class}"/>
-      <arg value="--type"/><arg value="msi"/>
-      <arg value="--icon"/><arg value="${icon.file}"/>
-      <arg value="--app-version"/><arg value="${app.version}"/>
+      <arg value="--input"/>        <arg value="${jar.dir}"/>
+      <arg value="--dest"/>         <arg value="${dist.dir}"/>
+      <arg value="--name"/>         <arg value="${app.name}"/>
+      <arg value="--main-jar"/>     <arg value="${app.name}.jar"/>
+      <arg value="--main-class"/>   <arg value="${main.class}"/>
+      <arg value="--type"/>         <arg value="msi"/>
+      <arg value="--icon"/>         <arg value="${icon.file}"/>
+      <arg value="--app-version"/>  <arg value="${app.version}"/>
       <arg value="--win-dir-chooser"/>
       <arg value="--win-shortcut"/>
       <arg value="--win-menu"/>
